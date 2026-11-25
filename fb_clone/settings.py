@@ -117,6 +117,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 # Media Files (User-Uploaded Profiles, Covers, Posts)
 MEDIA_URL = '/media/'
