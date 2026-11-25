@@ -1,0 +1,327 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ profile_user.get_full_name|default:profile_user.username }} | Facebook</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="{% url 'profile_home' %}" class="fb-logo" aria-label="Facebook">
+                <i class="fa-brands fa-facebook"></i>
+            </a>
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search Facebook">
+            </div>
+        </div>
+
+        <div class="nav-center">
+            <a href="#" class="nav-tab" title="Home"><i class="fa-solid fa-house"></i></a>
+            <a href="#" class="nav-tab" title="Video"><i class="fa-solid fa-tv"></i></a>
+            <a href="#" class="nav-tab" title="Marketplace"><i class="fa-solid fa-store"></i></a>
+            <a href="#" class="nav-tab" title="Groups"><i class="fa-solid fa-users"></i></a>
+            <a href="#" class="nav-tab" title="Gaming"><i class="fa-solid fa-gamepad"></i></a>
+        </div>
+
+        <div class="nav-right">
+            <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
+                 alt="Mini Avatar" class="nav-avatar js-avatar-sync">
+        </div>
+    </nav>
+
+    <!-- Profile Top Section -->
+    <header class="profile-header-wrapper">
+        <div class="profile-header">
+            <!-- Cover Photo -->
+            <div class="cover-photo-container">
+                {% if profile.cover_photo %}
+                    <img src="{{ profile.cover_photo.url }}" alt="Cover Photo" id="coverPhotoImg" class="cover-photo">
+                {% else %}
+                    <img src="" alt="" id="coverPhotoImg" class="cover-photo is-hidden">
+                {% endif %}
+                <div class="cover-gradient"></div>
+                <button type="button" class="add-cover-btn" id="openCoverBtn">
+                    <i class="fa-solid fa-camera"></i> Add cover photo
+                </button>
+                <input type="file" id="coverFileInput" accept="image/*" hidden>
+            </div>
+
+            <!-- Avatar & User Details -->
+            <div class="profile-info-bar">
+                <div class="avatar-wrapper">
+                    {% if profile.thought_bubble %}
+                        <div class="thought-bubble" id="displayThoughtBubble">
+                            {{ profile.thought_bubble }}
+                        </div>
+                    {% endif %}
+
+                    <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
+                         alt="Profile Picture" id="mainProfileAvatar" class="profile-avatar js-avatar-sync">
+
+                    <button type="button" class="camera-btn" id="openAvatarModalBtn" title="Update profile picture">
+                        <i class="fa-solid fa-camera"></i>
+                    </button>
+                </div>
+
+                <div class="user-details">
+                    <h1 class="profile-name-row">
+                        <span class="js-fullname-sync">{{ profile_user.get_full_name|default:profile_user.username }}</span>
+                        {% if profile.nickname %}
+                            <span class="nickname" id="displayNickname">({{ profile.nickname }})</span>
+                        {% endif %}
+                    </h1>
+
+                    <p class="friends-count">{{ profile.friends_count }} friends</p>
+
+                    <p class="tagline" id="displayTagline">{{ profile.tagline }}</p>
+                    <p class="bio-line" id="displayBio">{{ profile.bio }}</p>
+
+                    <div class="meta-inline">
+                        <span><i class="fa-solid fa-location-dot"></i> <strong id="displayLocation">{{ profile.location }}</strong></span>
+                        <span class="dot">·</span>
+                        <span><i class="fa-solid fa-graduation-cap"></i> <strong id="displayEducation">{{ profile.education }}</strong></span>
+                        {% if profile.social_handle %}
+                            <span class="dot">·</span>
+                            <a href="#" class="handle-link" id="displayHandle">
+                                <i class="fa-brands fa-instagram"></i> {{ profile.social_handle }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <button type="button" class="btn btn-primary" id="focusPostBtn">
+                        <i class="fa-solid fa-plus"></i> Add to story
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="openBioModalBtn">
+                        <i class="fa-solid fa-pen"></i> Edit profile
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-icon" id="moreActionsBtn" aria-label="More options">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Profile Sub-Navigation -->
+            <div class="profile-tabs-bar">
+                <div class="profile-tabs">
+                    <button type="button" class="tab-btn active">All</button>
+                    <button type="button" class="tab-btn">About</button>
+                    <button type="button" class="tab-btn">Friends</button>
+                    <button type="button" class="tab-btn">Photos</button>
+                    <button type="button" class="tab-btn">Reels</button>
+                    <button type="button" class="tab-btn">More <i class="fa-solid fa-caret-down"></i></button>
+                </div>
+                <button type="button" class="btn btn-secondary btn-icon" aria-label="Profile settings">
+                    <i class="fa-solid fa-ellipsis"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main 2-Column Content -->
+    <main class="main-container">
+        <!-- Left Column: Personal details -->
+        <aside class="left-column">
+            <div class="card personal-details-card">
+                <div class="card-top-row">
+                    <h2>Personal details</h2>
+                    <button type="button" class="icon-edit-btn" id="editDetailsIconBtn" title="Edit personal details">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                </div>
+
+                <ul class="details-list">
+                    <li>
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Lives in <strong id="displayLivesIn">{{ profile.lives_in }}</strong></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-house"></i>
+                        <span>From <strong id="displayHometown">{{ profile.hometown }}</strong></span>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-cake-candles"></i>
+                        <span><strong id="displayBirthday">{{ profile.birthday }}</strong></span>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Right Column: Create Post & Posts Feed -->
+        <section class="right-column">
+            <!-- What's on your mind? Card -->
+            <div class="card create-post-card">
+                <form method="POST" enctype="multipart/form-data" id="createPostForm">
+                    {% csrf_token %}
+                    <div class="create-post-top">
+                        <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
+                             class="small-avatar js-avatar-sync" alt="Avatar">
+                        <input type="text" name="content" id="postInputBox"
+                               class="status-input" placeholder="What's on your mind?" required>
+                        <button type="submit" name="create_post" class="btn btn-primary btn-sm">Post</button>
+                    </div>
+
+                    <hr class="card-divider">
+
+                    <div class="create-post-actions">
+                        <button type="button" class="composer-action" id="liveVideoBtn">
+                            <i class="fa-solid fa-video text-red"></i> Live video
+                        </button>
+                        <label class="composer-action">
+                            <i class="fa-solid fa-images text-green"></i> Photo/video
+                            <input type="file" name="image" accept="image/*" hidden>
+                        </label>
+                        <button type="button" class="composer-action" id="lifeUpdateBtn">
+                            <i class="fa-solid fa-flag text-cyan"></i> Life update
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Posts Header Bar -->
+            <div class="card posts-toolbar-card">
+                <div class="posts-toolbar">
+                    <h2>Posts</h2>
+                    <div class="toolbar-actions">
+                        <button type="button" class="btn btn-secondary btn-sm">
+                            <i class="fa-solid fa-sliders"></i> Filters
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm">
+                            <i class="fa-solid fa-gear"></i> Manage posts
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posts List -->
+            {% for post in posts %}
+            <article class="card post-card">
+                <div class="post-header">
+                    <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
+                         class="small-avatar js-avatar-sync" alt="Avatar">
+                    <div>
+                        <h4 class="js-fullname-sync">{{ profile_user.get_full_name|default:profile_user.username }}</h4>
+                        <span class="post-time">{{ post.created_at|timesince }} ago · <i class="fa-solid fa-earth-americas"></i></span>
+                    </div>
+                </div>
+                <p class="post-content">{{ post.content }}</p>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="Post attachment" class="post-image">
+                {% endif %}
+                <div class="post-stats">
+                    <span><i class="fa-solid fa-thumbs-up text-blue"></i> <span id="like-count-{{ post.id }}">{{ post.total_likes }}</span></span>
+                </div>
+                <hr class="card-divider">
+                <div class="post-actions">
+                    <button type="button" class="action-btn js-like-btn {% if profile_user in post.likes.all %}liked{% endif %}" data-post-id="{{ post.id }}">
+                        <i class="fa-regular fa-thumbs-up"></i> Like
+                    </button>
+                    <button type="button" class="action-btn"><i class="fa-regular fa-comment"></i> Comment</button>
+                    <button type="button" class="action-btn"><i class="fa-solid fa-share"></i> Share</button>
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+    </main>
+
+    <!-- Modal 1: Upload Profile Picture -->
+    <div class="modal-backdrop" id="avatarModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Update profile picture</h3>
+                <button type="button" class="close-btn" data-close="avatarModal">&times;</button>
+            </div>
+            <form id="avatarUploadForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="preview-container">
+                        <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}"
+                             id="avatarPreviewImg" alt="Preview">
+                    </div>
+                    <label for="id_avatar" class="btn btn-secondary">
+                        <i class="fa-solid fa-plus"></i> Choose Photo
+                    </label>
+                    <input type="file" name="avatar" id="id_avatar" accept="image/*" hidden required>
+                    <p id="uploadErrorMsg" class="error-text"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-close="avatarModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveAvatarBtn">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Edit Profile & Personal Details -->
+    <div class="modal-backdrop" id="bioModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit profile</h3>
+                <button type="button" class="close-btn" data-close="bioModal">&times;</button>
+            </div>
+            <form id="bioUpdateForm">
+                {% csrf_token %}
+                <div class="modal-body form-stack">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" value="{{ profile_user.first_name }}" required>
+
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" value="{{ profile_user.last_name }}" required>
+
+                    <label>Nickname (shown in parentheses)</label>
+                    <input type="text" name="nickname" value="{{ profile.nickname }}">
+
+                    <label>Short Tagline / Role</label>
+                    <input type="text" name="tagline" value="{{ profile.tagline }}">
+
+                    <label>Bio</label>
+                    <input type="text" name="bio" value="{{ profile.bio }}">
+
+                    <label>Thought Bubble above Avatar</label>
+                    <input type="text" name="thought_bubble" value="{{ profile.thought_bubble }}">
+
+                    <label>Location (Header)</label>
+                    <input type="text" name="location" value="{{ profile.location }}">
+
+                    <label>School / Education</label>
+                    <input type="text" name="education" value="{{ profile.education }}">
+
+                    <label>Handle / Link</label>
+                    <input type="text" name="social_handle" value="{{ profile.social_handle }}">
+
+                    <label>Lives in</label>
+                    <input type="text" name="lives_in" value="{{ profile.lives_in }}">
+
+                    <label>From (Hometown)</label>
+                    <input type="text" name="hometown" value="{{ profile.hometown }}">
+
+                    <label>Birthday</label>
+                    <input type="text" name="birthday" value="{{ profile.birthday }}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-close="bioModal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const AVATAR_UPLOAD_URL = "{% url 'update_avatar_ajax' %}";
+        const COVER_UPLOAD_URL = "{% url 'update_cover_ajax' %}";
+        const BIO_UPDATE_URL = "{% url 'update_bio_ajax' %}";
+    </script>
+    <script src="{% static 'js/profile.js' %}"></script>
+</body>
+</html>
